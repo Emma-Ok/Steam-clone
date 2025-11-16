@@ -1,0 +1,102 @@
+###########################################
+# GLOBAL ENV FILES
+###########################################
+.env
+.env.*
+*.local
+
+###########################################
+# FRONTEND: Next.js / React
+###########################################
+front/node_modules/
+front/.next/
+front/out/
+front/dist/
+front/.turbo/
+front/.cache/
+front/.parcel-cache/
+front/npm-debug.log
+front/yarn-debug.log
+front/yarn-error.log
+front/pnpm-debug.log
+
+# Next.js specific
+front/.vercel/
+front/.eslintcache
+
+###########################################
+# BACKEND: Spring Boot 3 + Gradle
+###########################################
+
+# Gradle
+back/.gradle/
+back/build/
+back/*/build/
+back/*/.gradle/
+
+# Wrapper (keep JAR!)
+back/gradle/wrapper/gradle-wrapper.jar
+
+# JVM logs
+hs_err_pid*
+replay_pid*
+*.hprof
+
+# Spring Boot logs
+back/*.log
+back/*.out
+
+###########################################
+# SUPABASE CLI
+###########################################
+supabase/
+.supabase/
+supabase/.temp/
+supabase/.branches/
+supabase/migrations/.history/
+
+###########################################
+# IDE FILES
+###########################################
+
+# IntelliJ / JetBrains
+.idea/
+*.iml
+*.iws
+*.ipr
+
+# VSCode
+.vscode/
+.history/
+*.code-workspace
+
+###########################################
+# OS-SPECIFIC FILES
+###########################################
+
+# macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+
+# Windows
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+
+# Linux
+*~
+
+###########################################
+# TEST + COVERAGE
+###########################################
+coverage/
+back/coverage/
+front/coverage/
+jacoco.exec
+test-output/
+reports/
+
+###########################################
+# MISC
+##################################
