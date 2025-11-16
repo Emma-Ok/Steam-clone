@@ -1,6 +1,5 @@
-📄 **README.md **
+📄 README.md 
 
-```markdown
 # 🎮 Steam Clone — Fullstack Monorepo  
 Una plataforma tipo Steam simplificada, construida para practicar arquitectura, ingeniería full stack y diseño modular moderno.
 
