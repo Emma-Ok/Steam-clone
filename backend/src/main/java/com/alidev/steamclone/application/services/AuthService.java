@@ -46,7 +46,7 @@ public class AuthService implements RegisterUserUseCase, LoginUserUseCase {
         });
 
         Role userRole = roleRepository.findByName("ROLE_USER")
-                .orElseThrow(() -> new ResourceNotFoundException("Default role not configured"));
+            .orElseGet(() -> roleRepository.save(new Role(null, "ROLE_USER")));
 
         User user = new User(null, email, request.username(), passwordEncoder.encode(request.password()),
                 Set.of(userRole), null, null, null);

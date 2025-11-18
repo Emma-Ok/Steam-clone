@@ -1,8 +1,10 @@
 package com.alidev.steamclone.infrastructure.security;
 
+import com.alidev.steamclone.infrastructure.config.CorsProperties;
 import com.alidev.steamclone.infrastructure.config.SecurityProperties;
 import com.alidev.steamclone.infrastructure.oauth.SteamOAuth2UserService;
 import com.nimbusds.jose.jwk.source.ImmutableSecret;
+import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.Customizer;
@@ -16,25 +18,24 @@ import org.springframework.security.oauth2.jwt.NimbusJwtDecoder;
 import org.springframework.security.oauth2.jwt.NimbusJwtEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
+import org.springframework.web.cors.CorsConfiguration;
+import org.springframework.web.cors.CorsConfigurationSource;
+import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
 import javax.crypto.spec.SecretKeySpec;
 import java.nio.charset.StandardCharsets;
+import java.util.List;
 
 @Configuration
+@EnableConfigurationProperties(SecurityProperties.class)
 public class SecurityConfig {
 
-    private final SteamOAuth2UserService steamOAuth2UserService;
-    private final AuthenticationSuccessHandler oAuth2SuccessHandler;
-
-    public SecurityConfig(SteamOAuth2UserService steamOAuth2UserService,
-                          AuthenticationSuccessHandler oAuth2SuccessHandler) {
-        this.steamOAuth2UserService = steamOAuth2UserService;
-        this.oAuth2SuccessHandler = oAuth2SuccessHandler;
-    }
-
     @Bean
-    public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
-        http.csrf(csrf -> csrf.disable())
+    public SecurityFilterChain securityFilterChain(HttpSecurity http,
+                                                   SteamOAuth2UserService steamOAuth2UserService,
+                                                   AuthenticationSuccessHandler oAuth2SuccessHandler) throws Exception {
+    http.csrf(csrf -> csrf.disable())
+        .cors(Customizer.withDefaults())
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/auth/**", "/oauth2/**", "/openapi.yaml", "/actuator/health").permitAll()
@@ -62,5 +63,18 @@ public class SecurityConfig {
     public JwtDecoder jwtDecoder(SecurityProperties properties) {
         SecretKeySpec key = new SecretKeySpec(properties.secret().getBytes(StandardCharsets.UTF_8), "HmacSHA256");
         return NimbusJwtDecoder.withSecretKey(key).build();
+    }
+
+    @Bean
+    public CorsConfigurationSource corsConfigurationSource(CorsProperties corsProperties) {
+        CorsConfiguration configuration = new CorsConfiguration();
+        List<String> origins = corsProperties.allowedOrigins();
+        configuration.setAllowedOrigins(origins);
+        configuration.setAllowedMethods(List.of("GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"));
+        configuration.setAllowedHeaders(List.of("Authorization", "Content-Type"));
+        configuration.setAllowCredentials(true);
+        UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
+        source.registerCorsConfiguration("/**", configuration);
+        return source;
     }
 }

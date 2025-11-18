@@ -29,4 +29,11 @@ public class RolePersistenceAdapter implements RoleRepository {
     public List<Role> findAll() {
         return repository.findAll().stream().map(mapper::toDomain).toList();
     }
+
+    @Override
+    public Role save(Role role) {
+        var entity = mapper.toEntity(role);
+        var saved = repository.save(entity);
+        return mapper.toDomain(saved);
+    }
 }
