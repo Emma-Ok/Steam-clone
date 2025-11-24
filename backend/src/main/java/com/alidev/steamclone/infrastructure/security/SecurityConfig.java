@@ -38,8 +38,16 @@ public class SecurityConfig {
         .cors(Customizer.withDefaults())
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/auth/**", "/oauth2/**", "/openapi.yaml", "/actuator/health").permitAll()
-                        .anyRequest().authenticated())
+                    .requestMatchers(
+                        "/auth/**",
+                        "/oauth2/**",
+                        "/games/**",
+                        "/genres/**",
+                        "/platforms/**",
+                        "/openapi.yaml",
+                        "/actuator/health"
+                    ).permitAll()
+                    .anyRequest().authenticated())
                 .oauth2Login(oauth -> oauth
                         .userInfoEndpoint(info -> info.userService(steamOAuth2UserService))
                         .successHandler(oAuth2SuccessHandler))
