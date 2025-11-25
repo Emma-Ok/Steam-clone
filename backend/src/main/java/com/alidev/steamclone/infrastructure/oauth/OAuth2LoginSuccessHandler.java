@@ -35,14 +35,61 @@ public class OAuth2LoginSuccessHandler implements AuthenticationSuccessHandler {
                                         HttpServletResponse response,
                                         Authentication authentication) throws IOException, ServletException {
         OAuth2User principal = (OAuth2User) authentication.getPrincipal();
-        String userId = principal.getAttribute("steam_user_id");
-        if (userId == null) {
-            throw new ServletException("Missing steam_user_id attribute in OAuth2 response");
+        String provider = null;
+        if (request.getRequestURI().contains("/login/oauth2/code/")) {
+            String[] parts = request.getRequestURI().split("/login/oauth2/code/");
+            if (parts.length > 1) {
+                provider = parts[1];
+            }
         }
-        User user = userRepository.findById(UUID.fromString(userId))
-                .orElseThrow(() -> new ResourceNotFoundException("OAuth2 user not found"));
+
+        String userId = null;
+        if (provider != null) {
+            switch (provider) {
+                case "google":
+                    // Google usa 'sub' como id único
+                    userId = principal.getAttribute("sub");
+                    break;
+                case "github":
+                    // GitHub usa 'id' como id único
+                    userId = String.valueOf(principal.getAttribute("id"));
+                    break;
+                case "steam":
+                    userId = principal.getAttribute("steam_user_id");
+                    break;
+                default:
+                    // fallback: intenta con steam_user_id
+                    userId = principal.getAttribute("steam_user_id");
+            }
+        }
+        if (userId == null) {
+            throw new ServletException("Missing user id attribute in OAuth2 response for provider: " + provider);
+        }
+        // Buscar usuario por el campo adecuado (ajusta según tu modelo de User)
+        User user = null;
+        if (provider != null && provider.equals("github")) {
+            // GitHub id es numérico, pero tu User usa UUID, así que busca por email
+            String email = principal.getAttribute("email");
+            if (email != null) {
+                user = userRepository.findByEmail(com.alidev.steamclone.domain.valueobjects.Email.of(email)).orElse(null);
+            }
+        } else if (provider != null && provider.equals("google")) {
+            String email = principal.getAttribute("email");
+            if (email != null) {
+                user = userRepository.findByEmail(com.alidev.steamclone.domain.valueobjects.Email.of(email)).orElse(null);
+            }
+        } else {
+            // Steam o fallback: busca por UUID
+            try {
+                user = userRepository.findById(UUID.fromString(userId)).orElse(null);
+            } catch (Exception ignored) {}
+        }
+        if (user == null) {
+            throw new ResourceNotFoundException("OAuth2 user not found");
+        }
         String token = tokenProviderPort.generate(user);
-        response.setContentType("application/json");
-        response.getWriter().write(objectMapper.writeValueAsString(Map.of("accessToken", token)));
+        // Redirigir al frontend con el token como query param
+        String redirectUrl = "http://localhost:3000/oauth-callback?token=" + token;
+        response.sendRedirect(redirectUrl);
     }
 }

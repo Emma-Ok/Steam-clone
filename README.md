@@ -1,227 +1,193 @@
 📄 README.md 
 
-# 🎮 Steam Clone — Fullstack Monorepo  
-Una plataforma tipo Steam simplificada, construida para practicar arquitectura, ingeniería full stack y diseño modular moderno.
-
-Este proyecto combina:
-
-- **Next.js + TypeScript + Atomic Design** (frontend)
-- **Spring Boot 3.3 + Java 21 + Arquitectura Hexagonal + Gradle** (backend)
-- **Supabase (PostgreSQL)** como base de datos
-- Diseño limpio, modular y escalable
+# 🎮 Steam Clone — Fullstack Monorepo
+Plataforma inspirada en Steam para explorar arquitectura hexagonal, diseño atómico y autenticación moderna end-to-end. Este monorepo contiene todo lo necesario para levantar el frontend en Next.js y el backend en Spring Boot, incluida la integración con Supabase y OAuth2 (Google/GitHub).
 
 ---
 
-## 🚀 Tech Stack
-
-### **Frontend (front/)**
-- Next.js 14+
-- React 18
-- TypeScript
-- TailwindCSS
-- Atomic Design
-- React Query
-- Axios
-- Zustand (o Context API, según diseño del agente)
-
-### **Backend (back/)**
-- Java 21
-- Spring Boot 3.3.x
-- Arquitectura Hexagonal
-- Spring Web / Spring Security
-- OAuth2 Login (Google + GitHub)
-- JWT (stateless API)
-- MapStruct
-- PostgreSQL (Supabase)
-- Flyway
-- JUnit 5 + Mockito
-- Gradle Kotlin DSL
-
-### **Infraestructura**
-- Supabase (PostgreSQL)
-- GitHub + GitHub Actions (opcional)
-- Docker-ready (cuando se agreguen Dockerfiles)
+## ✨ Funcionalidades destacadas
+- **Autenticación completa**: registro/login tradicional con JWT + inicio de sesión social (Google y GitHub) con redirección segura al frontend.
+- **Catálogo público**: juegos, géneros y plataformas expuestos como endpoints públicos para navegación sin sesión.
+- **Biblioteca personal**: manejo de la librería de juegos del usuario autenticado.
+- **Reseñas y calificaciones**: endpoint listo para listar/opinar sobre juegos (estructura preparada para habilitar moderación).
+- **Arquitectura hexagonal real**: dominio separado de infraestructura, facilitando pruebas y cambios de proveedores.
+- **Design System reutilizable**: componentes atómicos, moléculas y organismos listos para escalar la UI.
 
 ---
 
-## 📁 Estructura del Monorepo
+## 🧱 Stack
+
+| Capa        | Tecnologías principales |
+|-------------|--------------------------|
+| Frontend    | Next.js 14, React 18, TypeScript, TailwindCSS, React Query, Zustand, Atomic Design |
+| Backend     | Java 21, Spring Boot 3.3, Spring Security, OAuth2 Client, JWT, MapStruct, Flyway |
+| Datos       | Supabase (PostgreSQL) |
+| Tooling     | Gradle Kotlin DSL, pnpm/npm, Jest/JUnit, Mockito, Testcontainers |
+
+---
+
+## 📂 Estructura del repo
 
 ```
-
 Steam-clone/
+├── backend/                      # API Spring Boot (arquitectura hexagonal)
+│   ├── src/main/java/com/alidev/steamclone/
+│   │   ├── domain/               # Entidades, value objects, puertos
+│   │   ├── application/          # Casos de uso, servicios
+│   │   └── infrastructure/       # REST, seguridad, persistencia, OAuth
+│   └── build.gradle.kts
 │
-├── back/                # Backend Spring Boot Hexagonal
-│   ├── src/main/java
-│   ├── build.gradle.kts
-│   └── ...
-│
-├── front/               # Next.js frontend
-│   ├── src/
-│   ├── package.json
-│   └── ...
-│
-├── .gitignore
+├── frontend/
+│   └── front/                    # App Next.js + Design System
+│       ├── app/                  # Rutas App Router
+│       ├── src/design-system/    # Atomic design (atoms/molecules/organisms)
+│       ├── src/shared/           # hooks, providers, tipos, utils
+│       └── package.json
 └── README.md
-
 ```
 
 ---
 
-## 🏗️ Arquitectura del Backend
-
-El backend implementa una arquitectura hexagonal real:
-
-```
-
-back/src/main/java/com/alidev/steamclone/
-│
-├── domain/              # Entidades, Value Objects, Exceptions, Ports
-│
-├── application/         # Use Cases, DTOs, Services (reglas de negocio)
-│
-└── infrastructure/      # Adapters REST, DB, Security, Configs
-
-````
-
-Beneficios:
-
-- Bajo acoplamiento
-- Separación estricta entre dominio e infraestructura
-- Fácil testeo
-- Reemplazo sencillo de adaptadores (DB, REST, OAuth, etc.)
+## ✅ Requisitos previos
+- Node.js ≥ 18.x (recomendado usar `nvm`)
+- pnpm o npm (el proyecto funciona con ambos; los ejemplos usan npm)
+- Java 21 (Temurin u OpenJDK)
+- Gradle Wrapper (incluido)
+- Cuenta Supabase con una base PostgreSQL creada
+- Credenciales OAuth2 para Google y GitHub
 
 ---
 
-## 🔧 Cómo correr el proyecto
+## ⚙️ Configuración inicial
 
-### 1. Clonar el repositorio
-```bash
-git clone https://github.com/<tu-user>/steam-clone.git
-cd steam-clone
-````
+1. **Clonar el repositorio**
+   ```bash
+   git clone https://github.com/<tu-user>/steam-clone.git
+   cd steam-clone
+   ```
+
+2. **Variables de entorno frontend** (`frontend/front/.env`)
+   ```bash
+   NEXT_PUBLIC_API_URL=http://localhost:8080
+   ```
+
+3. **Configurar el backend** (`backend/src/main/resources/application.yml`)
+   ```yaml
+   server:
+     port: 8080
+
+   spring:
+     datasource:
+       url: jdbc:postgresql://<SUPABASE_HOST>:5432/postgres?sslmode=require
+       username: <SUPABASE_USER>
+       password: <SUPABASE_PASSWORD>
+     security:
+       oauth2:
+         client:
+           registration:
+             google:
+               client-id: <GOOGLE_CLIENT_ID>
+               client-secret: <GOOGLE_CLIENT_SECRET>
+               redirect-uri: "{baseUrl}/login/oauth2/code/google"
+             github:
+               client-id: <GITHUB_CLIENT_ID>
+               client-secret: <GITHUB_CLIENT_SECRET>
+               redirect-uri: "{baseUrl}/login/oauth2/code/github"
+   security:
+     jwt:
+       secret: <JWT_SECRET_SUPER_SEGURO>
+   app:
+     cors:
+       allowed-origins: http://localhost:3000
+   ```
+
+4. **Registrar URIs de redirección OAuth**
+   - Google → `http://localhost:8080/login/oauth2/code/google`
+   - GitHub → `http://localhost:8080/login/oauth2/code/github`
+
+5. **Sembrar datos**: puedes usar Supabase SQL editor para importar juegos/géneros/plataformas o cargar tus propios datos.
 
 ---
 
-# ▶️ FRONTEND
+## ▶️ Cómo correr el proyecto
 
-Ir al directorio `front/`:
-
+### Frontend
 ```bash
-cd front
-npm install
+cd frontend/front
+npm install   # o pnpm install
 npm run dev
 ```
+Disponible en `http://localhost:3000`.
 
-El frontend correrá en:
-
-```
-http://localhost:3000
-```
-
----
-
-# ▶️ BACKEND
-
-Ir al directorio `back/`:
-
+### Backend
 ```bash
-cd back
+cd backend
 ./gradlew bootRun
 ```
+Disponible en `http://localhost:8080`.
 
-El backend correrá en:
+> Consejo: levanta primero `bootRun` y luego `npm run dev` para que el callback OAuth pueda redirigir correctamente al frontend (`/oauth-callback`).
 
-```
-http://localhost:8080
-```
-
----
-
-## 🗄️ Configurar Supabase
-
-Crear un archivo en `back/src/main/resources/application.yaml` con:
-
-```yaml
-spring:
-  datasource:
-    url: jdbc:postgresql://<HOST>:5432/postgres
-    username: <USER>
-    password: <PASSWORD>
-```
-
----
-
-# 📡 Endpoints principales
-
-La API expone operaciones para:
-
-* Autenticación (OAuth2 + JWT)
-* Usuarios
-* Juegos
-* Géneros
-* Plataformas
-* Biblioteca
-* Reseñas
-* Recomendaciones
-
-Contrato completo: se incluirá un `openapi.yaml` en futuras versiones.
-
----
-
-## 🧪 Testing
-
-### Ejecutar tests:
-
+### Tests Backend
 ```bash
-cd back
+cd backend
 ./gradlew test
 ```
 
-Se usa:
-
-* JUnit 5
-* Mockito
-* Testcontainers (opcional)
-* Jacoco para cobertura
-
----
-
-## 🤝 Convenciones del Proyecto
-
-### Branching Model
-
-* `main` → producción / estable
-* `dev` → desarrollo
-* `feature/*` → nuevas features
-
-### Commits (Conventional Commits)
-
-* `feat:` nueva feature
-* `fix:` corrección
-* `docs:` documentación
-* `refactor:` mejora interna
-* `chore:` tareas varias
-
----
-
-## 🚀 Deploy (futuro)
-
-* Frontend → Vercel
-* Backend → Railway / Fly.io / Render
-* Base de datos → Supabase
-
-(Se agregarán workflows de CI/CD cuando el proyecto esté más avanzado.)
-
----
-
-## 📜 Licencia
-
-Este proyecto es libre para uso personal, educativo y experimental.
-
----
-
-## 🙌 Contribuciones
-
-Abiertas a mejoras, sugerencias y PRs con buenas prácticas.
-
+### Tests Frontend (si aplica)
+```bash
+cd frontend/front
+npm run test
 ```
+
+---
+
+## 🔐 Flujo de autenticación
+1. El usuario inicia sesión con email/contraseña o pulsa **Google/GitHub**.
+2. Spring Security gestiona `/oauth2/authorization/{provider}` y recibe el callback en `/login/oauth2/code/{provider}`.
+3. `OAuth2LoginSuccessHandler` genera un JWT y redirige al frontend: `http://localhost:3000/oauth-callback?token=<JWT>`.
+4. El frontend guarda el token (localStorage/cookie) y React Query actualiza el estado de sesión.
+
+---
+
+## 📡 Funcionalidades expuestas por la API
+- `/auth/**` → registro, login clásico, logout, refresh.
+- `/oauth2/**` → inicio social (Google/GitHub).
+- `/games`, `/genres`, `/platforms` → catálogos públicos.
+- `/library/**` → biblioteca del usuario autenticado.
+- `/reviews/**` → reseñas de juegos.
+- `/actuator/health` → healthcheck para despliegues.
+
+Próximos endpoints: recomendaciones, wishlist y OpenAPI documentado.
+
+---
+
+## 🧪 Calidad y pruebas
+- **JUnit + Mockito** para dominio y casos de uso.
+- **Testcontainers** disponible para pruebas de integración con PostgreSQL.
+- **React Testing Library** (pendiente de habilitar) para componentes críticos.
+
+Ejecutar cobertura: `./gradlew test jacocoTestReport` (configurar plugin Jacoco).
+
+---
+
+## 🛠️ Troubleshooting rápido
+| Problema | Causa común | Solución |
+|----------|-------------|----------|
+| Google devuelve `redirect_uri_mismatch` | URI registrada con `/api` o puerto incorrecto | Usar exactamente `http://localhost:8080/login/oauth2/code/google` |
+| Botón Google abre pantalla "Login with OAuth 2.0" | Backend aún con `context-path: /api` o servidor caído | Asegúrate de que `context-path` sea `/` y que `bootRun` esté activo |
+| Estado no se actualiza tras login | Callback `/oauth-callback` no guarda token | Verifica hook `use-auth-actions` y almacenamiento del JWT |
+
+---
+
+## 🤝 Convenciones
+- **Ramas**: `main` (estable), `dev`, `feature/*`.
+- **Commits**: Conventional Commits (`feat:`, `fix:`, `docs:`, etc.).
+- **Code style**: ESLint + Prettier en frontend, Checkstyle/Spotless pendiente en backend.
+
+---
+
+## 📜 Licencia & contribuciones
+Uso libre para fines educativos y experimentales. Se aceptan PRs que sigan buenas prácticas y mantengan la arquitectura limpia.
+
+---

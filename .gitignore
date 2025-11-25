@@ -19,6 +19,17 @@ front/npm-debug.log
 front/yarn-debug.log
 front/yarn-error.log
 front/pnpm-debug.log
+frontend/front/node_modules/
+frontend/front/.next/
+frontend/front/out/
+frontend/front/dist/
+frontend/front/.turbo/
+frontend/front/.cache/
+frontend/front/.parcel-cache/
+frontend/front/npm-debug.log
+frontend/front/yarn-debug.log
+frontend/front/yarn-error.log
+frontend/front/pnpm-debug.log
 
 # Next.js specific
 front/.vercel/
@@ -33,6 +44,10 @@ back/.gradle/
 back/build/
 back/*/build/
 back/*/.gradle/
+backend/.gradle/
+backend/build/
+backend/*/build/
+backend/*/.gradle/
 
 # Wrapper (keep JAR!)
 back/gradle/wrapper/gradle-wrapper.jar

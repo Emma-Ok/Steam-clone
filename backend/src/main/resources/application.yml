@@ -1,13 +1,13 @@
 server:
-  port: 8080
+  port: ${SERVER_PORT:8080}
   servlet:
-    context-path: /api
+    context-path: /
 
 spring:
   datasource:
-    url: jdbc:postgresql://aws-1-us-east-1.pooler.supabase.com:5432/postgres?sslmode=require
-    username: postgres.jxfwdpofvtkfhhjgfgtg
-    password: _@uyBy-#q9ZY+P+
+    url: ${SPRING_DATASOURCE_URL:jdbc:postgresql://localhost:5432/postgres}
+    username: ${SPRING_DATASOURCE_USERNAME:postgres}
+    password: ${SPRING_DATASOURCE_PASSWORD:postgres}
     driver-class-name: org.postgresql.Driver
 
   jpa:
@@ -27,12 +27,12 @@ spring:
       client:
         registration:
           google:
-            client-id: ${GOOGLE_CLIENT_ID:change-me}
-            client-secret: ${GOOGLE_CLIENT_SECRET:change-me}
+            client-id: ${GOOGLE_CLIENT_ID}
+            client-secret: ${GOOGLE_CLIENT_SECRET}
             scope: profile,email
           github:
-            client-id: ${GITHUB_CLIENT_ID:change-me}
-            client-secret: ${GITHUB_CLIENT_SECRET:change-me}
+            client-id: ${GITHUB_CLIENT_ID}
+            client-secret: ${GITHUB_CLIENT_SECRET}
             scope: user:email
         provider:
           github:
@@ -47,7 +47,7 @@ logging:
 
 security:
   jwt:
-    secret: ${JWT_SECRET:bb228803262f4ed380c4c143f07e8d2e}
+    secret: ${JWT_SECRET:change-me}
 
 app:
   cors:

@@ -36,24 +36,26 @@ public class SecurityConfig {
                                                    AuthenticationSuccessHandler oAuth2SuccessHandler) throws Exception {
     http.csrf(csrf -> csrf.disable())
         .cors(Customizer.withDefaults())
-                .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-                .authorizeHttpRequests(auth -> auth
-                    .requestMatchers(
-                        "/auth/**",
-                        "/oauth2/**",
-                        "/games/**",
-                        "/genres/**",
-                        "/platforms/**",
-                        "/openapi.yaml",
-                        "/actuator/health"
-                    ).permitAll()
-                    .anyRequest().authenticated())
-                .oauth2Login(oauth -> oauth
-                        .userInfoEndpoint(info -> info.userService(steamOAuth2UserService))
-                        .successHandler(oAuth2SuccessHandler))
-                .oauth2ResourceServer(oauth2 -> oauth2.jwt(Customizer.withDefaults()))
-                .logout(logout -> logout.logoutUrl("/auth/logout"));
-        return http.build();
+        .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+        .authorizeHttpRequests(auth -> auth
+            .requestMatchers(
+                "/auth/**",
+                "/oauth2/**",
+                "/api/auth/**",
+                "/api/oauth2/**",
+                "/games/**",
+                "/genres/**",
+                "/platforms/**",
+                "/openapi.yaml",
+                "/actuator/health"
+            ).permitAll()
+            .anyRequest().authenticated())
+        .oauth2Login(oauth -> oauth
+            .userInfoEndpoint(info -> info.userService(steamOAuth2UserService))
+            .successHandler(oAuth2SuccessHandler))
+        .oauth2ResourceServer(oauth2 -> oauth2.jwt(Customizer.withDefaults()))
+        .logout(logout -> logout.logoutUrl("/auth/logout"));
+    return http.build();
     }
 
     @Bean
